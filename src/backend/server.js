@@ -2,19 +2,20 @@ const express = require("express");
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
 const path = require("path");
+const fs = require("fs");
 
 const fileAnalyser = require("./analyser");
 
 const app = express();
 const port = 3000;
+const dump = `${path.resolve("dump")}`;
+
+if (!fs.existsSync(dump)) {
+  fs.mkdirSync(dump);
+}
 
 app.use(cors());
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: "/tmp/",
-  })
-);
+app.use(fileUpload());
 
 app.use(express.static(path.resolve("src/frontend")));
 
@@ -23,11 +24,16 @@ app.post("/api/image", (req, res) => {
     return res.status(400).send("No files were uploaded.");
   }
   const file = req.files.image;
-  fileAnalyser(file.tempFilePath).then((text) =>
-    res.status(200).json({ data: text })
-  );
-  // res.status(200).json({ success: true });
-  // res.redirect("/");
+  console.log(file);
+  const filePath = `${dump}/${file.name}`;
+
+  file.mv(filePath, function (err) {
+    if (err) return res.status(500).send(err);
+    fileAnalyser(filePath).then((text) => {
+      fs.unlinkSync(filePath);
+      res.status(200).json({ data: text });
+    });
+  });
 });
 
 app.listen(port, () => {

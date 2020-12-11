@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/backend/server.js"
+    "start": "nodemon src/backend/server.js",
+    "dockerStart": "pm2 start ./src/backend/server.js --watch"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +14,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.0",
+    "pm2": "^4.5.0",
     "tesseract.js": "^2.1.4"
   },
   "devDependencies": {
